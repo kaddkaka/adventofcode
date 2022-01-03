@@ -1,21 +1,13 @@
-import std/strscans
-import std/sugar
-import std/math
-import std/sequtils
+import std/[strscans, sugar, math, sequtils]
 
 type point = object
-  x: int
-  y: int
+  x, y: int
 
 type dist = object
-  dx: int
-  dy: int
+  dx, dy: int
 
-func `-`(p0: point, p1: point): dist =
-  return dist(dx: p0.x-p1.x, dy: p0.y-p1.y)
-
-func `+`(p: point, d: dist): point =
-  return point(x: p.x+d.dx, y: p.y+d.dy)
+func `-`(p0: point, p1: point): auto = dist(dx: p0.x-p1.x, dy: p0.y-p1.y)
+func `+`(p:  point, d:  dist):  auto = point(x: p.x+d.dx, y: p.y+d.dy)
 
 type line = (point, point)
 
@@ -23,32 +15,27 @@ var lines: seq[line]
 var max_coord: int = 0
 
 for line in lines "day05.input":
-  var x0, y0, x1, y1: int
-  discard line.scanf("$i,$i -> $i,$i", x0, y0, x1, y1)
-  lines.add((point(x: x0, y: y0), point(x: x1, y: y1)))
+  var (_, x0, y0, x1, y1) = line.scanTuple("$i,$i -> $i,$i")
+  lines.add (point(x: x0, y: y0), point(x: x1, y: y1))
   max_coord = max([max_coord, x0, y0, x1, y1])
 
 var grid: seq[seq[int]]
-grid.newSeq(max_coord + 1)
-for row in mitems grid:
-  row.newSeq(max_coord + 1)
+grid = newSeqWith(max_coord + 1, newSeq[int](max_coord + 1))
 
 for line in lines:
-  let (a, b) = line
-  let diff = b - a
+  let (start, goal) = line
+  let diff = goal - start
+  let step = dist(dx: diff.dx.sgn, dy: diff.dy.sgn)
 
-  var step: dist
-  step = dist(dx: diff.dx.sgn, dy: diff.dy.sgn)
-
-  # Skip lines that are not vertical/horizontal
-  if step == dist(dx: 0, dy: 0): continue
-
-  var walk = a
-  while walk != (b + step):
+  var walk = start
+  while walk != (goal + step):
     grid[walk.x][walk.y] += 1
     walk = walk + step
 
-var total: int
-for row in grid:
-  total += row.foldl(a + int(b>1), 0)
+iterator flatten[T](s: seq[seq[T]]): T =
+  for row in s:
+    for col in row:
+      yield col
+
+let total = grid.flatten.countIt(it>1)
 dump total
