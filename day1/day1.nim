@@ -1,6 +1,5 @@
 import strutils
-import algorithm
-import math
+import std/heapqueue
 
 var heavy_lifter = 0
 var tot = 0
@@ -20,17 +19,16 @@ echo "Part 1: ", heavy_lifter
 
 
 proc part2 =
-  var elves: seq[int]
-  var tot = 0
+  var elves = [0, 0, 0].toHeapQueue
 
+  var tot = 0
   for line in lines "input":
     if line == "":
-      elves.add(tot)
+      discard elves.pushpop(tot)
       tot = 0
     else:
       tot += line.parseInt()
 
-  sort elves
-  echo "Part 2: ", sum elves[^3..^1]
+  echo "Part 2: ", elves.pop + elves.pop + elves.pop
 
 part2()
