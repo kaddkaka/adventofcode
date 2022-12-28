@@ -42,13 +42,13 @@ echo "hmap:", hmap.len, " * ", hmap[0].len
 echo "visitted:", visitted.len, " * ", visitted[0].len
 
 proc calc(hmap: HeightMap, start: Point, goal: Point): int =
-  let s: Position = ('a', 0, start)
-  var openList = [s].toHeapQueue()
-  visitted[s] = true
+  let g: Position = ('z', 0, goal)
+  var openList = [g].toHeapQueue()
+  visitted[g] = true
 
   while (openList.len > 0):
     let pos = openList.pop
-    if pos.point == goal:
+    if pos.height == 'a':
       return pos.dist
     echo pos
 
@@ -56,7 +56,7 @@ proc calc(hmap: HeightMap, start: Point, goal: Point): int =
     for n in [(p.x+1, p.y), (p.x-1, p.y), (p.x  , p.y+1), (p.x  , p.y-1)]:
       if n[0] >= 0 and n[1] >= 0 and n[0] < hmap.w and n[1] < hmap.h:
         let new_height: char = hmap[n]
-        if new_height.ord <= pos.height.ord + 1:
+        if new_height.ord >= pos.height.ord - 1:
           let new_pos: Position = (new_height, pos.dist + 1, n)
 
           if visitted[new_pos] == false:
